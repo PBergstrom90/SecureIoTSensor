@@ -3,6 +3,8 @@
 #include <HTTPClient.h>
 #include <Update.h>
 
+// WORK IN PROGRESS
+
 #define OTA_URL "http://your-ota-server.com/firmware.bin"
 extern WiFiClientSecure wifiClient;
 
