@@ -1,5 +1,4 @@
-
-# IoT Temperature Monitoring System with Secure MQTT
+# IoT Temperature Monitoring System with Secure MQTT (WIP)
 
 ## Overview
 This project outlines an IoT system that securely transmits temperature data from a sensor to a Raspberry Pi for storage and visualization. The architecture uses mutual TLS (mTLS) for secure communication between devices, and adheres to the Cyber Resilience Act requirements for ensuring secure connections.
@@ -19,6 +18,8 @@ This project outlines an IoT system that securely transmits temperature data fro
   - The ESP32 (client) and Raspberry Pi (server) authenticate each other using certificates.
   - Data transmission is encrypted to prevent eavesdropping and tampering.
 
+## TO DO
+
 #### Steps for mTLS:
 1. Generate certificates for both the ESP32 and Raspberry Pi using OpenSSL:
     - CA certificate
@@ -34,20 +35,6 @@ This project outlines an IoT system that securely transmits temperature data fro
 ### Grafana Security
 - **Access Control**: Set up authentication in Grafana using OAuth or other strong authentication methods. Restrict access to dashboards based on user roles.
 - **HTTPS for Grafana**: Ensure that Grafana is served over HTTPS, to protect data displayed on the dashboards.
-
-### Additional Security Considerations
-- **Software Updates**: Regularly update the firmware on the ESP32 and software on the Raspberry Pi to protect against vulnerabilities.
-- **Firewalls and Network Segmentation**: On the Raspberry Pi, configure firewall rules to restrict access to only the necessary ports (e.g., port 8883 for secure MQTT). Segment the network to reduce the attack surface.
-- **Logging and Monitoring**: Enable logging on both the MQTT broker and InfluxDB to monitor for unusual activity. Grafana alerts can also be set up for monitoring abnormal temperature values.
-- **Backup and Recovery**: Ensure that InfluxDB is backed up regularly, and that a disaster recovery plan is in place.
-
-## Professional Validity
-This setup is suitable for professional environments and adheres to the Cyber Resilience Act's principles of:
-- Secure communication via mTLS
-- Data protection through encryption and access control
-- System resilience through regular updates, backups, and monitoring.
-
-By following these best practices, you ensure that the system is resilient, secure, and scalable.
 
 ## Technologies Used
 - **ESP32**: Microcontroller for reading sensor data and sending it over MQTT.
