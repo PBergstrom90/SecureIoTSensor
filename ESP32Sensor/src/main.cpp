@@ -1,35 +1,47 @@
 #include <Arduino.h>
-#include <Adafruit_Sensor.h>
-#include <WiFi.h>
-#include <HTTPClient.h>
-#include <dht.h>
-
-
-#define DHTPIN 2 
-#define DHTTYPE DHT11 // Define the sensor type
-DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor
+#include <WiFiManager.h>
+#include <MQTTManager.h>
+#include <OTAManager.h>
+#include <SensorManager.h>
+#include <LittleFS.h>
 
 void setup() {
   Serial.begin(115200);
-  dht.begin();
+  
+  if (!LittleFS.begin()) {
+    Serial.println("LittleFS Mount Failed");
+    return;
+  }
+  
+  connectToWiFi();
+  connectToMQTT();
 }
 
 void loop() {
-  float temperature = dht.readTemperature();
-  float humidity = dht.readHumidity();
+  // Access the DHT sensor
+  float temperature, humidity;
+  readSensorData(temperature, humidity);
 
-  if (isnan(temperature) || isnan(humidity)) {
-    Serial.println("Failed to read from DHT sensor!");
-    return;
-  }
-
+  // Serial printout for debug
   Serial.print("Temperature: ");
   Serial.print(temperature);
   Serial.println(" *C");
-  
   Serial.print("Humidity: ");
   Serial.print(humidity);
   Serial.println(" %");
+
+  // Connect to MQTT
+  if (!mqttClient.connected()) {
+    connectToMQTT();
+  }
+  mqttClient.loop();
+
+  // Publish data to MQTT
+  String payload = String("{\"temperature\":") + temperature + ", \"humidity\":" + humidity + "}";
+  mqttClient.publish("sensor/temperature", payload.c_str());
   
-  delay(2000);
+  // Check for OTA updates at the end
+  checkForOTAUpdate();
+
+  delay(5000);
 }
