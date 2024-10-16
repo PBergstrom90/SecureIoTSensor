@@ -3,6 +3,8 @@
 ## Overview
 This project outlines an IoT system that securely transmits temperature data from a sensor to a Raspberry Pi for storage and visualization. The architecture uses mutual TLS (mTLS) for secure communication between devices, and adheres to the Cyber Resilience Act requirements for ensuring secure connections.
 
+![Application Screenshot](resources/SecureIoT-Flowchart.jpg)
+
 ## System Architecture
 
 1. **Temperature Sensor**: A wired temperature sensor sends data to the ESP32 for processing.
