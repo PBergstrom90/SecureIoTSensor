@@ -7,13 +7,9 @@
 
 void setup() {
   Serial.begin(115200);
-  
-  if (!LittleFS.begin()) {
-    Serial.println("LittleFS Mount Failed");
-    return;
-  }
-  
+  LittleFS.begin();
   connectToWiFi();
+  testPing();
   connectToMQTT();
 }
 
@@ -29,19 +25,26 @@ void loop() {
   Serial.print("Humidity: ");
   Serial.print(humidity);
   Serial.println(" %");
-
+  
   // Connect to MQTT
   if (!mqttClient.connected()) {
     connectToMQTT();
   }
   mqttClient.loop();
 
-  // Publish data to MQTT
-  String payload = String("{\"temperature\":") + temperature + ", \"humidity\":" + humidity + "}";
-  mqttClient.publish("sensor/temperature", payload.c_str());
+  // Check if values are valid (not NaN)
+  if (!isnan(temperature) && !isnan(humidity)) {
+    // Publish valid data to MQTT
+    String temperaturePayload = String("{\"temperature\":") + temperature + "}";
+    String humidityPayload = String("{\"humidity\":") + humidity + "}";
+    mqttClient.publish("sensor/temperature", temperaturePayload.c_str());
+    mqttClient.publish("sensor/humidity", humidityPayload.c_str());
+  } else {
+    Serial.println("Invalid sensor readings. Not sending data.");
+  }
   
-  // Check for OTA updates at the end
-  checkForOTAUpdate();
+  // Check for OTA updates at the end (WIP)
+  // checkForOTAUpdate();
 
   delay(5000);
 }

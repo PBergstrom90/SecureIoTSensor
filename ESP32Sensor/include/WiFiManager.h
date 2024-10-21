@@ -3,7 +3,10 @@
 
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
+#include <ESP32Ping.h>
+#include "credentials.h"
 
 void connectToWiFi();
+void testPing();
 
 #endif

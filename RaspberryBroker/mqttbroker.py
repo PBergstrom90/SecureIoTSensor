@@ -1,42 +1,71 @@
 import paho.mqtt.client as mqtt
-from influxdb_client import InfluxDBClient, Point, WritePrecision
+from influxdb_client import InfluxDBClient
+from influxdb_client.client.write_api import SYNCHRONOUS
+import json
 
-# InfluxDB configuration
-bucket = "sensor_data"
-org = "your_org"
-token = "your_token"
-url = "http://localhost:8086"
+# Correct initialization for InfluxDB 2.x
+influx_url = "http://localhost:8086"  # InfluxDB URL
+influx_token = "your_token"  # InfluxDB API token
+influx_org = "your_org"  # Your InfluxDB organization
+influx_bucket = "your_bucket"  # The bucket where data will be stored
 
-client = InfluxDBClient(url=url, token=token, org=org)
-write_api = client.write_api(write_options=WritePrecision.S)
+# Create InfluxDB client
+influx_client = InfluxDBClient(
+    url=influx_url, 
+    token=influx_token, 
+    org=influx_org
+)
 
-# MQTT settings
-mqtt_broker = "localhost"  # Raspberry Pi's IP
-mqtt_port = 8883
+# Callback when a message is received
+def on_message(client, userdata, message):
+    print(f"Received message: {message.payload.decode()} on topic: {message.topic}")
 
-def on_connect(client, userdata, flags, rc):
-    print(f"Connected with result code {rc}")
-    client.subscribe("sensor/temperature")
+    # Parse the received message (assuming JSON format)
+    try:
+        data = json.loads(message.payload.decode())
 
-def on_message(client, userdata, msg):
-    payload = msg.payload.decode()
-    print(f"Received '{payload}' from '{msg.topic}' topic")
+        # 4O Logic: Perform validation or transformation based on the 4O logic requirements
+        if 'sensor_id' in data and 'temperature' in data and 'humidity' in data:
+            # Example 4O logic: Ensuring values are within valid ranges (adjust as needed)
+            if 0 <= data['temperature'] <= 50 and 0 <= data['humidity'] <= 100:
+                # Prepare data for InfluxDB
+                influx_data = [
+                    {
+                        "measurement": "sensor_data",
+                        "tags": {
+                            "sensor_id": data["sensor_id"]  # Adjust according to your payload
+                        },
+                        "fields": {
+                            "temperature": data["temperature"],  # Adjust according to your payload
+                            "humidity": data["humidity"]  # Adjust according to your payload
+                        }
+                    }
+                ]
+                # Write data to InfluxDB
+                influx_client.write_points(influx_data)
+                print("Data written to InfluxDB.")
+            else:
+                print(f"Invalid data received: {data}")
+        else:
+            print("Invalid message format received.")
+    except Exception as e:
+        print(f"Error processing message: {e}")
 
-    # Parse payload and write to InfluxDB
-    data = eval(payload)  # assuming payload is a dict-like string
-    temperature = data.get("temperature")
-    humidity = data.get("humidity")
-    
-    point = Point("sensor_data") \
-        .field("temperature", temperature) \
-        .field("humidity", humidity)
-    
-    write_api.write(bucket=bucket, org=org, record=point)
+# Create a new MQTT client instance
+client = mqtt.Client()
 
-mqtt_client = mqtt.Client()
-mqtt_client.tls_set("/path/to/ca_cert.pem", "/path/to/client_cert.pem", "/path/to/client_key.pem")
-mqtt_client.on_connect = on_connect
-mqtt_client.on_message = on_message
+# Configure TLS if necessary
+client.tls_set('/certs/ca.crt')
+client.tls_insecure_set(True)
 
-mqtt_client.connect(mqtt_broker, mqtt_port)
-mqtt_client.loop_forever()
+# Connect to the MQTT broker
+client.connect("pobe", 8883)  # Adjust port if necessary
+
+# Subscribe to the topic
+client.subscribe("sensor/temperature")  # Replace with your actual topic
+
+# Set the callback for message handling
+client.on_message = on_message
+
+# Start the loop
+client.loop_forever()

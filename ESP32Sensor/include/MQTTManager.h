@@ -3,6 +3,7 @@
 
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
+#include "credentials.h"
 
 extern WiFiClientSecure wifiClient;
 extern PubSubClient mqttClient;
