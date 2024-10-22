@@ -1,71 +1,39 @@
 import paho.mqtt.client as mqtt
-from influxdb_client import InfluxDBClient
+from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
+from datetime import datetime
 import json
 
-# Correct initialization for InfluxDB 2.x
-influx_url = "http://localhost:8086"  # InfluxDB URL
-influx_token = "your_token"  # InfluxDB API token
-influx_org = "your_org"  # Your InfluxDB organization
-influx_bucket = "your_bucket"  # The bucket where data will be stored
+# InfluxDB configuration - Use the Netbird IP address and the token from the InfluxDB UI.
+influx_client = InfluxDBClient(url="http://100.106.177.123:8086", 
+                               token="ntmN5JXzv1IfobUn6brJOn6k_4DvF5ec9cJIugxB3ffHNHMq4PmR6kaXejT-q784sHk_aY8botnwIAJzda-sHA==", 
+                               org="SensorOrg")
+write_api = influx_client.write_api(write_options=SYNCHRONOUS)
 
-# Create InfluxDB client
-influx_client = InfluxDBClient(
-    url=influx_url, 
-    token=influx_token, 
-    org=influx_org
-)
-
-# Callback when a message is received
+# Callback for MQTT messages
 def on_message(client, userdata, message):
-    print(f"Received message: {message.payload.decode()} on topic: {message.topic}")
+    sensor_id = client._username
+    data = json.loads(message.payload.decode())
+    point = Point("sensor_data") \
+        .tag("sensor_id", sensor_id) \
+        .time(datetime.utcnow(), WritePrecision.NS)
 
-    # Parse the received message (assuming JSON format)
-    try:
-        data = json.loads(message.payload.decode())
+    if message.topic == "sensor/temperature":
+        point.field("temperature", data["temperature"])
+    elif message.topic == "sensor/humidity":
+        point.field("humidity", data["humidity"])
 
-        # 4O Logic: Perform validation or transformation based on the 4O logic requirements
-        if 'sensor_id' in data and 'temperature' in data and 'humidity' in data:
-            # Example 4O logic: Ensuring values are within valid ranges (adjust as needed)
-            if 0 <= data['temperature'] <= 50 and 0 <= data['humidity'] <= 100:
-                # Prepare data for InfluxDB
-                influx_data = [
-                    {
-                        "measurement": "sensor_data",
-                        "tags": {
-                            "sensor_id": data["sensor_id"]  # Adjust according to your payload
-                        },
-                        "fields": {
-                            "temperature": data["temperature"],  # Adjust according to your payload
-                            "humidity": data["humidity"]  # Adjust according to your payload
-                        }
-                    }
-                ]
-                # Write data to InfluxDB
-                influx_client.write_points(influx_data)
-                print("Data written to InfluxDB.")
-            else:
-                print(f"Invalid data received: {data}")
-        else:
-            print("Invalid message format received.")
-    except Exception as e:
-        print(f"Error processing message: {e}")
+    write_api.write("SensorBucket", "SensorOrg", point)
+    print(f"Data written: {message.payload.decode()}")
 
-# Create a new MQTT client instance
+# MQTT setup
 client = mqtt.Client()
-
-# Configure TLS if necessary
-client.tls_set('/certs/ca.crt')
+client.tls_set(ca_certs='/home/pontusbergstrom/Desktop/RaspberryBroker/certs/ca.crt',
+               certfile='/home/pontusbergstrom/Desktop/RaspberryBroker/certs/pythonclient.crt',
+               keyfile='/home/pontusbergstrom/Desktop/RaspberryBroker/certs/pythonclient.key')
 client.tls_insecure_set(True)
-
-# Connect to the MQTT broker
-client.connect("pobe", 8883)  # Adjust port if necessary
-
-# Subscribe to the topic
-client.subscribe("sensor/temperature")  # Replace with your actual topic
-
-# Set the callback for message handling
+client.connect("192.168.50.221", 8883)
+client.subscribe("sensor/temperature")
+client.subscribe("sensor/humidity")
 client.on_message = on_message
-
-# Start the loop
 client.loop_forever()
