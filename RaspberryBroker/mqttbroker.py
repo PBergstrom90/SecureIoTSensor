@@ -4,7 +4,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 from datetime import datetime
 import json
 
-# InfluxDB configuration - Use the Netbird IP address and the token from the InfluxDB UI.
+# InfluxDB configuration
 influx_client = InfluxDBClient(url="http://100.106.177.123:8086", 
                                token="ntmN5JXzv1IfobUn6brJOn6k_4DvF5ec9cJIugxB3ffHNHMq4PmR6kaXejT-q784sHk_aY8botnwIAJzda-sHA==", 
                                org="SensorOrg")
@@ -28,11 +28,14 @@ def on_message(client, userdata, message):
 
 # MQTT setup
 client = mqtt.Client()
-client.tls_set(ca_certs='/home/pontusbergstrom/Desktop/RaspberryBroker/certs/ca.crt',
-               certfile='/home/pontusbergstrom/Desktop/RaspberryBroker/certs/pythonclient.crt',
-               keyfile='/home/pontusbergstrom/Desktop/RaspberryBroker/certs/pythonclient.key')
+client.tls_set(ca_certs='/etc/mosquitto/certs/ca.crt',
+		certfile='/etc/mosquitto/certs/pythonclient.crt',
+		keyfile='/etc/mosquitto/certs/pythonclient.key')
+
+# Since the MQTT broker is running on the same machine, we can use localhost
 client.tls_insecure_set(True)
-client.connect("192.168.50.221", 8883)
+client.connect("127.0.0.1", 8883)
+
 client.subscribe("sensor/temperature")
 client.subscribe("sensor/humidity")
 client.on_message = on_message
