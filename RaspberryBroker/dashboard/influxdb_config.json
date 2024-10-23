@@ -1,0 +1,17 @@
+{
+  "organization": "SensorOrg",
+  "buckets": [
+    {
+      "name": "SensorBucket",
+      "retention_policy": "30d",
+      "data_type": ["temperature", "humidity"]
+    }
+  ],
+  "users": [
+    {
+	  "name": "superuser",
+      "role": "admin"
+    }
+  ],
+  "influxdb_url": "http://192.168.50.221:8086"
+}
