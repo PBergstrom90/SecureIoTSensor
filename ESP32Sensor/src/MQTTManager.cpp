@@ -69,3 +69,11 @@ void connectToMQTT() {
     }
   }
 }
+
+void disconnectFromMQTT() {
+  if (mqttClient.connected()) {
+    Serial.println("Disconnecting from MQTT... ");
+    mqttClient.disconnect();
+    delay(100);
+  }
+}

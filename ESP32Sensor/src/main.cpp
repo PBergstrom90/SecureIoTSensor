@@ -3,6 +3,7 @@
 #include <MQTTManager.h>
 #include <OTAManager.h>
 #include <SensorManager.h>
+#include <credentials.h>
 #include <LittleFS.h>
 
 void setup() {
@@ -14,6 +15,7 @@ void setup() {
 }
 
 void loop() {
+  Serial.println("FIRMWARE VERSION: " FIRMWARE_VERSION);
   // Access the DHT sensor
   float temperature, humidity;
   readSensorData(temperature, humidity);
@@ -44,7 +46,6 @@ void loop() {
   }
   
   // Check for OTA updates at the end (WIP)
-  // checkForOTAUpdate();
-
+  handleOTAUpdate();
   delay(5000);
 }

@@ -9,6 +9,7 @@ extern WiFiClientSecure wifiClient;
 extern PubSubClient mqttClient;
 
 void connectToMQTT();
+void disconnectFromMQTT();
 void readCertFile(const char* path, String &dest);
 
 #endif
