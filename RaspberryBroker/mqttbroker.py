@@ -6,7 +6,7 @@ import json
 
 # InfluxDB configuration
 influx_client = InfluxDBClient(url="http://100.106.177.123:8086", 
-                               token="ntmN5JXzv1IfobUn6brJOn6k_4DvF5ec9cJIugxB3ffHNHMq4PmR6kaXejT-q784sHk_aY8botnwIAJzda-sHA==", 
+                               token="O5Ef_HA_dSXF-_a2yOFtj3p-9yXL_9sU4K53ja-5WHVGbPWMadk-ymNxapSWd8ZJpbl5G1LPjCbI08tmp7yfqQ==", 
                                org="SensorOrg")
 write_api = influx_client.write_api(write_options=SYNCHRONOUS)
 
