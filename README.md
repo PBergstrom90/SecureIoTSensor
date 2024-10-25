@@ -1,54 +1,83 @@
-# IoT Temperature Monitoring System with Secure MQTT (WIP)
+# IoT Temperature Monitoring System with Secure MQTT and OTA Updates
 
 ## Overview
-This project outlines an IoT system that securely transmits temperature data from a sensor to a Raspberry Pi for storage and visualization. The architecture uses mutual TLS (mTLS) for secure communication between devices, and adheres to the Cyber Resilience Act requirements for ensuring secure connections.
+This project showcases a secure IoT system that transmits temperature data from a sensor to a Raspberry Pi, where it is stored in InfluxDB and visualized using Grafana. Developed in alignment with the Cyber Resilience Act (CRA) requirements, this Proof of Concept (PoC) demonstrates secure communication, robust infrastructure, and adherence to modern cybersecurity standards.
 
 ![Application Screenshot](resources/SecureIoT-Flowchart.jpg)
 
 ## System Architecture
+1. **Temperature Sensor**: The DHT11 sensor gathers temperature and humidity data, which is sent to the ESP32 for processing.
+2. **ESP32 (Client)**: Interprets the sensor data and transmits it via MQTT over Wi-Fi to the Raspberry Pi using mutual TLS (mTLS) for secure, authenticated communication.
+3. **Raspberry Pi 5 (Server)**: Acts as the MQTT broker, receiving data from the ESP32 and storing it in InfluxDB.
+4. **InfluxDB**: A time-series database that securely stores sensor data.
+5. **Grafana**: Provides real-time monitoring and visualization of the temperature data.
 
-1. **Temperature Sensor**: A wired temperature sensor sends data to the ESP32 for processing.
-2. **ESP32**: The ESP32 interprets the data from the sensor and sends the processed data over Wi-Fi using secure MQTT (with mTLS) to the Raspberry Pi 5.
-3. **Raspberry Pi 5**: Acts as an MQTT broker and accepts the data from the ESP32. The Raspberry Pi enters the data into InfluxDB, a time-series database.
-4. **InfluxDB**: Stores the sensor data securely.
-5. **Grafana**: Visualizes the temperature data, allowing real-time monitoring and analysis.
+## Communications and Security Model
+- **Secure Data Flow**: All data transfers between the ESP32 and Raspberry Pi are encrypted using mTLS to prevent interception or tampering.
+- **Certificate Authentication**: The ESP32 and Raspberry Pi authenticate each other through certificates, ensuring only authorized devices can communicate.
+- **Data Integrity and Certificate Management**: Certificates for the ESP32’s `MQTTManager` and `OTAManager` are securely stored in **LittleFS** to ensure data security and authenticity.
 
-## Security and Compliance with Cyber Resilience Act
+## Compliance with Cyber Resilience Act (CRA)
+### Security-by-Design
+- End-to-end encryption and certificate-based authentication were implemented from the start to ensure data privacy and integrity.
+- The design meets CRA’s expectations for secure-by-default IoT systems.
 
-### Mutual TLS (mTLS) Setup
-- **mTLS** is used for the secure communication between the ESP32 and the Raspberry Pi over MQTT. This ensures that:
-  - The ESP32 (client) and Raspberry Pi (server) authenticate each other using certificates.
-  - Data transmission is encrypted to prevent eavesdropping and tampering.
+### Update Capability
+- **OTA Updates**: The system includes OTA update functionality for the ESP32. Future versions will support enhanced OTA mechanisms to ensure continuous security updates and patch management.
 
-## TO DO
+### Vulnerability Management
+- **Logging and Error Handling**: Error handling for MQTT connections, OTA updates, and certificate management is implemented to detect and handle issues proactively. Logging and monitoring features will be enhanced to further support fault tolerance.
+- **Logging and Monitoring**: Planned logging and monitoring features will enhance threat detection and enable faster responses to vulnerabilities, aligning with CRA’s vulnerability management requirements.
 
-#### Steps for mTLS:
-1. Generate certificates for both the ESP32 and Raspberry Pi using OpenSSL:
-    - CA certificate
-    - Server certificate (for Raspberry Pi)
-    - Client certificate (for ESP32)
-2. Configure the Raspberry Pi MQTT broker (e.g., Mosquitto) to require client authentication with the certificates.
-3. Load the certificates into the ESP32 firmware and establish an mTLS connection using the `WiFiClientSecure` class.
+## System Specification
+### Architecture
+- **Components**:
+  - **Sensor**: DHT11, connected to ESP32.
+  - **Microcontroller**: ESP32 S3 WROOM for processing and secure data transmission.
+  - **Server/Gateway**: Raspberry Pi 5, hosting the Mosquitto MQTT broker.
+  - **Database**: InfluxDB for secure storage of time-series data.
+  - **Visualization**: Grafana for monitoring and analyzing sensor data.
 
-### InfluxDB Security
-- **Data Encryption**: InfluxDB must be configured to use SSL/TLS for data transmission. Ensure that both data in transit and data at rest are encrypted.
-- **Authentication**: Use authentication mechanisms in InfluxDB to control who can access the database and ensure that only authorized users/devices can read/write data.
+### Communication Flow
+1. The sensor reads data and sends it to the ESP32.
+2. ESP32 transmits data over Wi-Fi using mTLS to the Raspberry Pi’s MQTT broker.
+3. The Raspberry Pi stores incoming data in InfluxDB.
+4. Grafana visualizes the data, making it accessible for analysis and real-time monitoring.
 
-### Grafana Security
-- **Access Control**: Set up authentication in Grafana using OAuth or other strong authentication methods. Restrict access to dashboards based on user roles.
-- **HTTPS for Grafana**: Ensure that Grafana is served over HTTPS, to protect data displayed on the dashboards.
+### Security Measures
+- **mTLS Configuration**:
+  - **Certificates**:
+    - Generated CA, server, and client certificates for mutual authentication.
+    - `WiFiClientSecure` on the ESP32 enables mTLS connections.
+  - **Mosquitto**:
+    - Configured on the Raspberry Pi to enforce client authentication.
+- **Data Security**:
+  - Encryption of data in transit (mTLS) and at rest (SSL/TLS for InfluxDB).
+  - **Role-based Access**: Plans for user-specific permissions in Grafana will restrict dashboard access.
+  - **Firewall and Network Security**: Further network security configurations to prevent unauthorized access.
+
+### Secure OTA Updates
+This system includes OTA updates for the ESP32 using HTTPS with certificate-based verification. This approach ensures data integrity and security compliance with CRA standards.
+
+#### OTA Update Process
+1. **Version Check**: The ESP32 queries the Raspberry Pi server for the latest firmware version and compares it to its current version.
+2. **Certificate-Based Authentication**: The ESP32 uses certificates stored in LittleFS for server verification.
+3. **Firmware Download**: If a newer version is detected, the ESP32 securely downloads and installs the update before rebooting.
 
 ## Technologies Used
-- **ESP32**: Microcontroller for reading sensor data and sending it over MQTT.
-- **Raspberry Pi 5**: Acts as the secure server for receiving data and storing it in a database.
-- **Mosquitto**: MQTT broker running on the Raspberry Pi with mTLS support.
-- **InfluxDB**: Time-series database for storing sensor data.
-- **Grafana**: Visualization tool for real-time monitoring of the sensor data.
+- **ESP32**: Microcontroller for data acquisition and secure transmission.
+- **Raspberry Pi 5**: Acts as a secure server and MQTT broker.
+- **Mosquitto**: mTLS-enabled MQTT broker for secure message transfer.
+- **InfluxDB**: Time-series database for secure data storage.
+- **Grafana**: Visualization dashboard for monitoring data.
 
 ## Future Improvements
-- **Scalability**: The system can be expanded by adding more sensors or integrating with cloud platforms.
-- **Security Enhancements**: Consider integrating multi-factor authentication (MFA) for Grafana and further hardening the Raspberry Pi.
-- **Advanced Monitoring**: Implement predictive analytics for the temperature data using machine learning models integrated with Grafana.
+- **Scalability**: Increase sensor count and consider cloud integration for broader data access.
+- **Enhanced Security**: Implement multi-factor authentication for Grafana and strengthen network security configurations.
+- **TLS Certificate Validation**: The current MQTT client uses `tls_insecure_set(True)` due to certificate validation issues on localhost. A priority for production will be enabling full certificate validation for the MQTT client to ensure secure and authenticated connections.
+- **Secure Credential Storage**: Currently, the InfluxDB token is hardcoded in the MQTT subscriber script. Future improvements include storing credentials securely in environment variables or using an encrypted storage mechanism.
+- **System Health Monitoring and Alerts**: Future versions of this PoC may integrate system health checks and alerts in Grafana to notify users of connection issues, certificate expiration, or OTA failures.
+- **Predictive Analytics**: Explore machine learning models within Grafana for predictive monitoring.
 
 ## Conclusion
-This project establishes a secure and resilient IoT system that is well-suited for professional environments. The use of mTLS ensures that the system complies with modern cybersecurity standards, while tools like InfluxDB and Grafana provide robust data handling and visualization.
+This PoC demonstrates a secure IoT solution for remote monitoring that meets Cyber Resilience Act standards. The system’s secure communication, data handling, and update capabilities provide a solid foundation for further development into a production-ready IoT product.
