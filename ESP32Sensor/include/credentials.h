@@ -2,7 +2,7 @@
 #define CREDENTIALS_H
 
 // Current firmware version
-#define FIRMWARE_VERSION "0.5"
+#define FIRMWARE_VERSION "0.6"
 
 // Add WIFI-credentials before uploading to the ESP32
 #define WIFI_SSID " "

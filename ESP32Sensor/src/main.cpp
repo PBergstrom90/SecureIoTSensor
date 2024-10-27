@@ -34,13 +34,17 @@ void loop() {
   }
   mqttClient.loop();
 
-  // Check if values are valid (not NaN)
+  // Check if values are valid (not NaN) and within realistic range
   if (!isnan(temperature) && !isnan(humidity)) {
+    if (temperature >= -40 && temperature <= 50 && humidity >= 0 && humidity <= 100) {
     // Publish valid data to MQTT
     String temperaturePayload = String("{\"temperature\":") + temperature + "}";
     String humidityPayload = String("{\"humidity\":") + humidity + "}";
     mqttClient.publish("sensor/temperature", temperaturePayload.c_str());
     mqttClient.publish("sensor/humidity", humidityPayload.c_str());
+    } else {
+      Serial.println("Unrealistic sensor readings detected. Not sending data.");
+    }
   } else {
     Serial.println("Invalid sensor readings. Not sending data.");
   }
