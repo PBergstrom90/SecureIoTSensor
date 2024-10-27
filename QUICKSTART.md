@@ -88,7 +88,33 @@ Ensure the latest versions of the following software are installed on the Raspbe
 
 ---
 
-## 8. Testing the Setup
+## 8. OTA Update Process
+
+To enable OTA (Over-the-Air) updates for the ESP32, follow these steps:
+
+1. **Compile Firmware**: Build the updated firmware `.bin` file in your development environment (such as PlatformIO).
+2. **Transfer Firmware to Raspberry Pi**:
+   - Transfer the `firmware.bin` file to the Raspberry Pi's designated OTA directory:
+     ```bash
+     scp path/to/firmware.bin pontusbergstrom@<Raspberry_Pi_IP>:/var/www/firmware/esp32/
+     ```
+   - Replace `path/to/firmware.bin` with the path to the compiled firmware on your local machine and `<Raspberry_Pi_IP>` with your Raspberry Pi’s IP address.
+3. **Set Permissions**:
+   - On the Raspberry Pi, set the correct permissions to allow Nginx to access the firmware file:
+     ```bash
+     sudo chmod 644 /var/www/firmware/esp32/firmware.bin
+     ```
+4. **Configure ESP32 for OTA**:
+   - Ensure the ESP32 is configured to check the OTA server on the Raspberry Pi for updates.
+   - The ESP32 should use HTTPS to securely download firmware files, with server verification via certificates stored in LittleFS.
+5. **Initiate OTA Update**:
+   - Upon detecting a newer firmware version, the ESP32 will download and install the firmware update before rebooting.
+
+Refer to this section when updating the firmware to ensure secure and reliable OTA updates in the system.
+
+---
+
+## 9. Testing the Setup
 
 1. **ESP32 to Raspberry Pi Communication**: Ensure the ESP32 can securely transmit data via MQTT to the Raspberry Pi.
 2. **InfluxDB HTTPS**: Verify that InfluxDB accepts HTTPS requests.
@@ -103,5 +129,4 @@ If any issues arise during setup:
 - Ensure permissions on certificate files allow read access for respective services.
 - Verify that all server and client certificates are correctly signed by the CA.
 - Check firewall settings to ensure required ports are open.
-
 ---
