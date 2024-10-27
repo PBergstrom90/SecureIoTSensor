@@ -9,9 +9,14 @@
   ],
   "users": [
     {
-	  "name": "superuser",
+      "name": "superuser",
       "role": "admin"
     }
   ],
-  "influxdb_url": "http://192.168.50.221:8086"
+  "influxdb_url": "https://100.106.177.123:8086",
+  "https_settings": {
+    "https-enabled": true,
+    "https-certificate": "/etc/ssl/certs/influxdb-server.crt",
+    "https-private-key": "/etc/ssl/private/influxdb-server.key"
+  }
 }

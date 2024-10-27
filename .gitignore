@@ -3,3 +3,7 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+
+# Ignore all .key files in the certs and data folders
+RaspberryBroker/certs/*.key
+ESP32Sensor/data/*.key
