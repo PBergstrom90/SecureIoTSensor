@@ -3,11 +3,17 @@ from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 from datetime import datetime
 import json
+import os
 
 # InfluxDB configuration
-influx_client = InfluxDBClient(url="http://100.106.177.123:8086", 
-                               token="O5Ef_HA_dSXF-_a2yOFtj3p-9yXL_9sU4K53ja-5WHVGbPWMadk-ymNxapSWd8ZJpbl5G1LPjCbI08tmp7yfqQ==", 
-                               org="SensorOrg")
+influx_token = os.getenv("INFLUXDB_TOKEN")
+
+influx_client = InfluxDBClient(
+	url="https://100.106.177.123:8086", 
+	token=influx_token, # Stored locally for security, in ~/.bashrc 
+	org="SensorOrg",
+	verify_ssl=False  # Use False if self-signed, True if certificate is trusted
+)
 write_api = influx_client.write_api(write_options=SYNCHRONOUS)
 
 # Callback for MQTT messages
@@ -31,11 +37,8 @@ client = mqtt.Client()
 client.tls_set(ca_certs='/etc/mosquitto/certs/ca.crt',
 		certfile='/etc/mosquitto/certs/pythonclient.crt',
 		keyfile='/etc/mosquitto/certs/pythonclient.key')
-
-# Since the MQTT broker is running on the same machine, we can use localhost
 client.tls_insecure_set(True)
 client.connect("127.0.0.1", 8883)
-
 client.subscribe("sensor/temperature")
 client.subscribe("sensor/humidity")
 client.on_message = on_message
