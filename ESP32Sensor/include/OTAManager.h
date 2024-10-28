@@ -12,6 +12,8 @@
 #define OTA_URL "https://192.168.50.221:8070/firmware/esp32/firmware.bin"
 #define VERSION_URL "https://192.168.50.221:8070/firmware/esp32/version.txt"
 
+extern WiFiClientSecure otaClient;
+
 enum OTAStatus {
   OTA_VERSION_CHECK_FAILED,
   OTA_UP_TO_DATE,

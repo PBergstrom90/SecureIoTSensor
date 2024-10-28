@@ -11,45 +11,45 @@ void setup() {
   LittleFS.begin();
   connectToWiFi();
   testPing();
+
+  // Check if the certificates exist
+  if (!LittleFS.exists("/ca.crt") || !LittleFS.exists("/client.crt") || !LittleFS.exists("/client.key")) {
+    Serial.println("ERROR: Certificate file(s) missing");
+    ESP.restart();
+    return;
+  }
+
+  // Load certificates from LittleFS
+  readCertFile("/ca.crt", ca_cert_str);
+  readCertFile("/client.crt", client_cert_str);
+  readCertFile("/client.key", client_key_str);
+
   connectToMQTT();
 }
 
 void loop() {
-  Serial.println("FIRMWARE VERSION: " FIRMWARE_VERSION);
-  // Access the DHT sensor
-  float temperature, humidity;
-  readSensorData(temperature, humidity);
+  static unsigned long lastRunTime = 0; // Variable to store last execution time
+  const unsigned long interval = 5000;  // 5-second interval
+  if (millis() - lastRunTime >= interval) {
+    lastRunTime = millis();  // Update last run time
+    Serial.println("FIRMWARE VERSION: " FIRMWARE_VERSION);
 
-  // Serial printout for debug
-  Serial.print("Temperature: ");
-  Serial.print(temperature);
-  Serial.println(" *C");
-  Serial.print("Humidity: ");
-  Serial.print(humidity);
-  Serial.println(" %");
-  
-  // Connect to MQTT
-  if (!mqttClient.connected()) {
-    connectToMQTT();
-  }
-  mqttClient.loop();
+    float temperature, humidity;
+    readSensorData(temperature, humidity);
 
-  // Check if values are valid (not NaN) and within realistic range
-  if (!isnan(temperature) && !isnan(humidity)) {
-    if (temperature >= -40 && temperature <= 50 && humidity >= 0 && humidity <= 100) {
-    // Publish valid data to MQTT
-    String temperaturePayload = String("{\"temperature\":") + temperature + "}";
-    String humidityPayload = String("{\"humidity\":") + humidity + "}";
-    mqttClient.publish("sensor/temperature", temperaturePayload.c_str());
-    mqttClient.publish("sensor/humidity", humidityPayload.c_str());
-    } else {
-      Serial.println("Unrealistic sensor readings detected. Not sending data.");
+    // Serial printout for debug
+    printSensorData(temperature, humidity);
+
+    // Connect to MQTT if disconnected
+    if (!mqttClient.connected()) {
+      connectToMQTT();
     }
-  } else {
-    Serial.println("Invalid sensor readings. Not sending data.");
+    mqttClient.loop();
+
+    // Process sensor data and publish to MQTT
+    processSensorData(temperature, humidity);
+    
+    handleOTAUpdate();
   }
-  
-  // Check for OTA updates at the end (WIP)
-  handleOTAUpdate();
-  delay(5000);
+  mqttClient.loop();  // Keep MQTT connection alive outside the interval
 }

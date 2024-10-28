@@ -4,16 +4,20 @@
 WiFiClientSecure wifiClient;
 PubSubClient mqttClient(wifiClient);
 
+// Global certificate variables
+String ca_cert_str;
+String client_cert_str;
+String client_key_str;
+
 void readCertFile(const char* path, String &dest) {
   File file = LittleFS.open(path, "r");
   Serial.print("Reading file: ");
   Serial.println(path);
-  if (!file) {
-    Serial.print("Failed to open file: ");
-    Serial.println(path);
-    return;
-  }
-  
+    if (!file) {
+      Serial.print("Failed to open file: ");
+      Serial.println(path);
+      return;
+    }
   dest = "";
   while (file.available()) {
     dest += char(file.read()); 
@@ -22,29 +26,21 @@ void readCertFile(const char* path, String &dest) {
 }
 
 void connectToMQTT() {
-  // Check if the certificates exist
-  if (!LittleFS.exists("/ca.crt") || !LittleFS.exists("/client.crt") || !LittleFS.exists("/client.key")) {
-    Serial.println("Certificate file(s) missing");
-    return;
-  }
-
-  String ca_cert_str, client_cert_str, client_key_str;
-
-  // Load certificates from LittleFS
-  readCertFile("/ca.crt", ca_cert_str);
-  readCertFile("/client.crt", client_cert_str);
-  readCertFile("/client.key", client_key_str);
-
  // Set certificates for secure connection
   wifiClient.setCACert(ca_cert_str.c_str());
   wifiClient.setCertificate(client_cert_str.c_str());
   wifiClient.setPrivateKey(client_key_str.c_str());
 
-  // wifiClient.setInsecure(); // Disable TLS verification (DEBUG)
-
-  mqttClient.setServer(MQTT_HOST, 8883); // Set MQTT hostname for TLS verfication and portnumber
+  // Set MQTT hostname for TLS verfication and portnumber
+  mqttClient.setServer(MQTT_HOST, 8883);
+  
+  // 5 seconds retry interval
+  unsigned long retryInterval = 5000;
+  unsigned long lastAttemptTime = 0; 
 
   while (!mqttClient.connected()) {
+    if (millis() - lastAttemptTime >= retryInterval) { 
+      lastAttemptTime = millis();
     Serial.print("Connecting to MQTT...");
     if (mqttClient.connect("ESP32Client")) {
       Serial.println(" connected");
@@ -65,8 +61,10 @@ void connectToMQTT() {
       } else {
         Serial.println("UNKOWN ERROR");
       }
-      delay(5000);  // Retry every 5 seconds
     }
+    }
+    // Keep MQTT responsive while trying to connect
+    mqttClient.loop();
   }
 }
 
