@@ -31,8 +31,6 @@ For setup instructions, please refer to the [QUICKSTART.md](QUICKSTART.md) file.
 
 ## Compliance with Cyber Resilience Act (CRA)
 
-## Compliance with Cyber Resilience Act (CRA)
-
 - **Security-by-Design**: End-to-end encryption and authentication were built into the system to align with CRA's security standards.
 - **Update Capability**: OTA updates are implemented through Nginx. Future improvements will include enhanced OTA mechanisms for continual security.
 - **Vulnerability Management**: Error handling, logging, and planned CVE tracking in future releases support proactive threat management.
