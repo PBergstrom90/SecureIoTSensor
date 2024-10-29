@@ -1,7 +1,7 @@
 # IoT Temperature Monitoring System with Secure MQTT, Nginx, and OTA Updates
 
 ## Overview
-This project showcases a secure IoT system that transmits temperature data from a sensor to a Raspberry Pi, where it is stored in InfluxDB and visualized using Grafana. Developed in alignment with the Cyber Resilience Act (CRA) requirements, this Proof of Concept (PoC) demonstrates secure communication, robust infrastructure, and adherence to modern cybersecurity standards.
+This project demonstrates a secure IoT system for remote temperature monitoring, designed to align with the Cyber Resilience Act (CRA) for data integrity and resilience. Temperature data is transmitted from a sensor to a Raspberry Pi, stored in InfluxDB, and visualized using Grafana.
 
 ![Application Screenshot](resources/SecureIoT-Flowchart.jpg)
 
@@ -22,24 +22,20 @@ For setup instructions, please refer to the [QUICKSTART.md](QUICKSTART.md) file.
 ---
 
 ## Communications and Security Model
-- **Secure Data Flow**: All data transfers between the ESP32 and Raspberry Pi are encrypted using mTLS to prevent interception or tampering.
-- **Certificate Authentication**: The ESP32 and Raspberry Pi authenticate each other through certificates, ensuring only authorized devices can communicate.
-- **Data Integrity and Certificate Management**: Certificates for the ESP32’s `MQTTManager`, `OTAManager`, and `Nginx` are securely stored in **LittleFS** to ensure data security and authenticity.
+- **Secure Data Flow**: Data transfer is encrypted via mTLS, ensuring data integrity.
+- **Certificate Authentication**: ESP32 and Raspberry Pi authenticate each other with certificates for authorized communication.
+- **Data and Certificate Management**: Stored in **LittleFS** on ESP32 for secure handling.
+
 
 ---
 
 ## Compliance with Cyber Resilience Act (CRA)
 
-### Security-by-Design
-- End-to-end encryption and certificate-based authentication were implemented from the start to ensure data privacy and integrity.
-- The design meets CRA’s expectations for secure-by-default IoT systems.
+## Compliance with Cyber Resilience Act (CRA)
 
-### Update Capability
-- **OTA Updates**: The system includes OTA update functionality for the ESP32, hosted through Nginx on the Raspberry Pi. Future versions will support enhanced OTA mechanisms to ensure continuous security updates and patch management.
-
-### Vulnerability Management
-- **Logging and Error Handling**: Error handling for MQTT connections, OTA updates, and certificate management is implemented to detect and handle issues proactively.
-- **Logging and Monitoring**: Planned logging and monitoring features will enhance threat detection and enable faster responses to vulnerabilities, aligning with CRA’s vulnerability management requirements.
+- **Security-by-Design**: End-to-end encryption and authentication were built into the system to align with CRA's security standards.
+- **Update Capability**: OTA updates are implemented through Nginx. Future improvements will include enhanced OTA mechanisms for continual security.
+- **Vulnerability Management**: Error handling, logging, and planned CVE tracking in future releases support proactive threat management.
 
 ---
 
@@ -54,7 +50,7 @@ For setup instructions, please refer to the [QUICKSTART.md](QUICKSTART.md) file.
   - **Visualization**: Grafana for monitoring and analyzing sensor data.
 
 ### Communication Flow
-1. The sensor reads data and sends it to the ESP32.
+1. The DTH11 sensor reads data and sends it to the ESP32.
 2. ESP32 transmits data over Wi-Fi using mTLS to the Raspberry Pi’s MQTT broker.
 3. The Raspberry Pi stores incoming data in InfluxDB.
 4. Grafana visualizes the data, making it accessible for analysis and real-time monitoring.
@@ -72,7 +68,16 @@ For setup instructions, please refer to the [QUICKSTART.md](QUICKSTART.md) file.
 - **Data Security**:
   - Encryption of data in transit (mTLS) and at rest (SSL/TLS for InfluxDB and Nginx).
   - **Role-based Access**: Plans for user-specific permissions in Grafana will restrict dashboard access.
-  - **Firewall and Network Security**: Further network security configurations to prevent unauthorized access.
+- **Firewall and Network Security**: Further network security configurations to prevent unauthorized access, such as a dedicated and separate Wi-Fi network for the ESP32, combined with a Netbird or WireGuard VPN setup for the Raspberry Pi.
+
+### Future Cloud Integration
+**Goal**: Enable secure, scalable access to sensor data in a cloud environment, enhancing accessibility and real-time monitoring capabilities.
+
+**Implementation Plan**:
+1. **Cloud Database Integration**: Migrate InfluxDB to a cloud provider, such as InfluxDB Cloud, Azure Cosmos DB, or MongoDB Atlas, to support time-series or document-oriented data.
+2. **Secure Data Pipeline**: Use HTTPS/TLS encryption for data streaming to the cloud, with IP restrictions and access control.
+3. **Grafana Cloud Dashboard**: Configure Grafana Cloud for remote access, providing real-time monitoring and advanced analytics capabilities.
+4. **IoT Device Management**: Explore cloud-based solutions (e.g., AWS IoT Core or Azure IoT Hub) for expanded device management and monitoring.
 
 ---
 
@@ -98,13 +103,15 @@ This system includes OTA updates for the ESP32 using HTTPS with certificate-base
 
 ## Future Improvements
 - **Scalability**: Increase sensor count and consider cloud integration for broader data access.
-- **Enhanced Security**: Implement multi-factor authentication for Grafana and strengthen network security configurations.
-- **TLS Certificate Validation**: Currently, both InfluxDB and MQTT connections use self-signed certificates. While the MQTT client uses `tls_insecure_set(True)` due to localhost validation issues, future improvements should enable full certificate validation for both InfluxDB and MQTT clients to secure connections effectively in production.
+- **Enhanced Security**: Implement multi-factor authentication for Grafana and strengthen network security configurations, such as isolating the ESP32 on a dedicated network.
+- **Reliable Certificate Management**: Currently, both InfluxDB and MQTT connections use self-signed certificates. Moving to more reliable certificates, such as `Let’s Encrypt`, will strengthen security, especially in production environments, by enabling automated certificate renewal and validation.
+- **TLS Certificate Validation**: Future improvements aim to fully validate certificates for both InfluxDB and MQTT connections, removing `tls_insecure_set(True)` and establishing secure, verified connections.
 - **Secure Credential Storage**: InfluxDB tokens and other sensitive credentials are now managed with environment variables, improving security. Future updates could further enhance this with encrypted storage or a secrets management tool.
 - **System Health Monitoring and Alerts**: Future versions of this PoC may integrate system health checks and alerts in Grafana to notify users of connection issues, certificate expiration, or OTA failures.
-- **Predictive Analytics**: Explore machine learning models within Grafana for predictive monitoring.
+- **OTA Rollback Mechanism**: To ensure stability after updates, a rollback mechanism for OTA updates will be implemented. This feature will revert to the last known configuration if critical settings (e.g., network credentials) fail, maintaining functionality and minimizing downtime.
+- **Predictive Analytics**: Explore machine learning models within Grafana for predictive monitoring and proactive maintenance alerts based on sensor data trends.
 
 ---
 
 ## Conclusion
-This PoC demonstrates a secure IoT solution for remote monitoring that meets Cyber Resilience Act standards. The system’s secure communication, data handling, and update capabilities provide a solid foundation for further development into a production-ready IoT product.
+This Proof of Concept meets Cyber Resilience Act standards, demonstrating a secure and scalable solution for IoT monitoring. Future cloud integration will further enhance accessibility, scalability, and security, preparing the system for production deployment.
