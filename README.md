@@ -115,3 +115,22 @@ This system includes OTA updates for the ESP32 using HTTPS with certificate-base
 
 ## Conclusion
 This Proof of Concept meets Cyber Resilience Act standards, demonstrating a secure and scalable solution for IoT monitoring. Future cloud integration will further enhance accessibility, scalability, and security, preparing the system for production deployment.
+
+## Examples - Screenshots
+
+
+### ESP32 Serial Screenshot
+![Application Screenshot](resources/ESP32Output.jpg)
+*“ESP32 serial output showing firmware version, temperature and humidity readings, MQTT connection status, and TLS handshake for OTA updates.”*
+
+
+### InfluxDB Screenshot
+
+![Application Screenshot](resources/InfluxDBOutput.jpg)
+*“InfluxDB dashboard displaying timestamped sensor data points for temperature and humidity. Confirming that data is being implemented correctly, from the ESP32 to the Raspberry Pi.”*
+
+
+### Grafana Screenshot
+
+![Application Screenshot](resources/GrafanaOutput.jpg)
+*“Grafana dashboard visualizing real-time temperature and humidity data, including gauge and line charts for easy monitoring.”*
