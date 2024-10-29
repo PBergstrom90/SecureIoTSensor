@@ -9,7 +9,6 @@ This project demonstrates a secure IoT system for remote temperature monitoring,
 
 For setup instructions, please refer to the [QUICKSTART.md](QUICKSTART.md) file.
 
----
 
 ## System Architecture
 1. **Temperature Sensor**: The DHT11 sensor gathers temperature and humidity data, which is sent to the ESP32 for processing.
@@ -33,7 +32,6 @@ For setup instructions, please refer to the [QUICKSTART.md](QUICKSTART.md) file.
 - **Update Capability**: OTA updates are implemented through Nginx. Future improvements will include enhanced OTA mechanisms for continual security.
 - **Vulnerability Management**: Error handling, logging, and planned CVE tracking in future releases support proactive threat management.
 
----
 
 ## System Specification
 
@@ -75,7 +73,6 @@ For setup instructions, please refer to the [QUICKSTART.md](QUICKSTART.md) file.
 3. **Grafana Cloud Dashboard**: Configure Grafana Cloud for remote access, providing real-time monitoring and advanced analytics capabilities.
 4. **IoT Device Management**: Explore cloud-based solutions (e.g., AWS IoT Core or Azure IoT Hub) for expanded device management and monitoring.
 
----
 
 ### Secure OTA Updates
 This system includes OTA updates for the ESP32 using HTTPS with certificate-based verification, hosted through Nginx. This approach ensures data integrity and security compliance with CRA standards.
@@ -85,7 +82,7 @@ This system includes OTA updates for the ESP32 using HTTPS with certificate-base
 2. **Certificate-Based Authentication**: The ESP32 uses certificates stored in LittleFS for server verification.
 3. **Firmware Download**: If a newer version is detected, the ESP32 securely downloads and installs the update before rebooting.
 
----
+
 
 ## Technologies Used
 - **ESP32**: Microcontroller for data acquisition and secure transmission.
@@ -95,7 +92,6 @@ This system includes OTA updates for the ESP32 using HTTPS with certificate-base
 - **InfluxDB**: Time-series database for secure data storage.
 - **Grafana**: Visualization dashboard for monitoring data.
 
----
 
 ## Future Improvements
 - **Scalability**: Increase sensor count and consider cloud integration for broader data access.
@@ -107,12 +103,17 @@ This system includes OTA updates for the ESP32 using HTTPS with certificate-base
 - **OTA Rollback Mechanism**: To ensure stability after updates, a rollback mechanism for OTA updates will be implemented. This feature will revert to the last known configuration if critical settings (e.g., network credentials) fail, maintaining functionality and minimizing downtime.
 - **Predictive Analytics**: Explore machine learning models within Grafana for predictive monitoring and proactive maintenance alerts based on sensor data trends.
 
----
+
 
 ## Conclusion
 This Proof of Concept meets Cyber Resilience Act standards, demonstrating a secure and scalable solution for IoT monitoring. Future cloud integration will further enhance accessibility, scalability, and security, preparing the system for production deployment.
 
 ## Examples - Screenshots
+
+
+### ESP32 Setup
+![Application Screenshot](resources/ESP32Setup.jpg)
+*“ESP32 setup with a DHT11 temperature and humidity sensor connected via a 10kΩ resistor. A portable power bank is temporarily providing power to the ESP32 development board.”*
 
 
 ### ESP32 Serial Screenshot
