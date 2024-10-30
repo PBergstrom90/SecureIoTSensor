@@ -118,6 +118,7 @@ This Proof of Concept meets Cyber Resilience Act standards, demonstrating a secu
 
 ### ESP32 Serial Screenshot
 ![Application Screenshot](resources/ESP32Output.jpg)
+
 *“ESP32 serial output showing firmware version, temperature and humidity readings, MQTT connection status, and TLS handshake for OTA updates.”*
 
 
