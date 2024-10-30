@@ -15,3 +15,5 @@ RaspberryBroker/certs/*.pem
 ESP32Sensor/data/*.pem
 RaspberryBroker/certs/*.csr
 ESP32Sensor/data/*.csr
+RaspberryBroker/certs/*.srl
+ESP32SEnsor/data/*.srl
