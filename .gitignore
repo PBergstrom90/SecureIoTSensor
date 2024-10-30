@@ -7,3 +7,11 @@
 # Ignore all .key files in the certs and data folders
 RaspberryBroker/certs/*.key
 ESP32Sensor/data/*.key
+
+# Ignore all .crt files in the certs and data folders
+RaspberryBroker/certs/*.crt
+ESP32Sensor/data/*.crt
+RaspberryBroker/certs/*.pem
+ESP32Sensor/data/*.pem
+RaspberryBroker/certs/*.csr
+ESP32Sensor/data/*.csr
